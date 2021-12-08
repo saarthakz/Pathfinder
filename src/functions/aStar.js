@@ -1,6 +1,6 @@
 import delay from "./delay";
 
-export default async function pathfinderFunc(grid, rows, columns, startNode, endNode, walls) {
+export default async function aStarFunc(grid, rows, columns, startNode, endNode, walls) {
   if (startNode.row === undefined) {
     alert("Set Start Node");
     return;
@@ -16,44 +16,45 @@ export default async function pathfinderFunc(grid, rows, columns, startNode, end
   const startingColumn = startNode.column;
   const start = [startingRow, startingColumn];
   const visited = new Set();
-  const minDistances = {};
+  const minCosts = {};
   const queue = new Array();
   queue.push(start);
   visited.add(start);
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < columns; j++) {
       if (i === startingRow && j === startingColumn)
-        minDistances[[i, j]] = {
+        minCosts[[i, j]] = {
           from: [i, j],
           distance: 0,
+          cost: 0,
         };
-      else minDistances[[i, j]] = {
+      else minCosts[[i, j]] = {
         from: undefined,
         distance: Infinity,
+        cost: Infinity,
       };
+      minCosts[[i, j]].estDistFromTarget = estDistFromTarget([i, j], target);
     };
   };
-
   while (queue.length > 0) {
-    const current = queue.shift();
-    if (current.toString() === target.toString()) return minDistances;
+    const current = removeFromArray(queue, getMinIndex(queue, minCosts));
+    if (current.toString() === target.toString()) return minCosts;
     if (walls.has(current.toString())) continue;
     if (!visited.has(current.toString())) {
       document.getElementById(`${current[0]}-${current[1]}`).style.backgroundColor = "blue";
       if (current.toString() === start.toString())
         document.getElementById(`${current[0]}-${current[1]}`).style.backgroundColor = "green";
-      const currentDistance = minDistances[current].distance;
+      const currentDistance = minCosts[current].distance;
       visited.add(current.toString());
       const currentNeighbours = getNeighbours(current[0], current[1]);
       currentNeighbours.forEach((neighbour) => {
-        if (minDistances[neighbour]) {
-          const currentNeighbourDistance = 1 + currentDistance;
-          if (minDistances[neighbour].distance > currentNeighbourDistance) {
-            minDistances[neighbour] = {
-              from: current,
-              distance: currentNeighbourDistance
-            };
-            if (visited.has(neighbour.toString())) visited.delete(neighbour.toString());
+        if (minCosts[neighbour]) { // Out of grid filter
+          const neighbourDistance = 1 + currentDistance;
+          const neighbourCost = neighbourDistance + minCosts[neighbour].estDistFromTarget;
+          if (minCosts[neighbour].cost > neighbourCost) {
+            minCosts[neighbour].from = current;
+            minCosts[neighbour].distance = currentDistance;
+            minCosts[neighbour].cost = neighbourCost;
           };
           queue.push(neighbour);
         };
@@ -61,7 +62,8 @@ export default async function pathfinderFunc(grid, rows, columns, startNode, end
       await delay(10);
     };
   };
-  return minDistances;
+  console.log("Done");
+  return minCosts;
 };
 
 function getNeighbours(row, column) {
@@ -76,3 +78,25 @@ function getNeighbours(row, column) {
     // [row - 1, column - 1], // diagonal
   ];
 };
+
+function getMinIndex(queue, minCosts) {
+  let minIndex = 0;
+  for (let i = 0; i < queue.length; i++) {
+    if (minCosts[queue[i]].cost < minCosts[queue[minIndex]].cost) minIndex = i;
+  };
+  return minIndex;
+};
+
+function removeFromArray(arr, index) {
+  return arr.splice(index, 1)[0];
+};
+
+// function estDistFromTarget(start, end) {
+//   const deltaX = start[0] - end[0];
+//   const deltaY = start[1] - end[1];
+//   return Math.sqrt(deltaX ** 2 + deltaY ** 2);
+// }
+
+function estDistFromTarget(start, end) {
+  return (Math.abs(start[0] - end[0]) + Math.abs(start[1] - end[1]));
+}

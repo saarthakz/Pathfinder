@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import "./Grid.css";
-import pathfinder from '../functions/pathfinder';
+import pathfinderFunc from '../functions/pathfinder';
+import aStarFunc from '../functions/aStar';
 import tracePath from '../functions/tracePath';
 import Node from './Node';
-import { triggerContext } from '../triggerContext';
+import { pathfinderContext } from '../contexts/pathfinderContext';
+import { aStarContext } from '../contexts/aStarContext';
 
 export default function Grid() {
 
@@ -13,7 +15,8 @@ export default function Grid() {
   const [startKey, setStartKey] = useState(false);
   const [endKey, setEndKey] = useState(false);
   const [wallFlag, setWallFlag] = useState(false);
-  const [trigger, setTrigger] = useContext(triggerContext);
+  const [pathfinder, setPathfinder] = useContext(pathfinderContext);
+  const [aStar, setAStar] = useContext(aStarContext);
   const [walls, setWalls] = useState(new Set());
 
   const [startNode, setStartNode] = useState({
@@ -76,13 +79,21 @@ export default function Grid() {
 
   useEffect(() => {
     (async () => {
-      if (trigger) {
-        console.log(walls);
-        const minDistances = await pathfinder(grid, rows, columns, startNode, endNode, walls);
-        await tracePath(minDistances, startNode, endNode);
+      if (pathfinder) {
+        const minDistances = await pathfinderFunc(grid, rows, columns, startNode, endNode, walls);
+        if (minDistances) await tracePath(minDistances, startNode, endNode);
       };
     })()
-  }, [trigger])
+
+  }, [pathfinder])
+  useEffect(() => {
+    (async () => {
+      if (aStar) {
+        const minCosts = await aStarFunc(grid, rows, columns, startNode, endNode, walls);
+        if (minCosts) await tracePath(minCosts, startNode, endNode);
+      };
+    })()
+  }, [aStar])
 
   return (
     <div id="Grid" className="Grid">

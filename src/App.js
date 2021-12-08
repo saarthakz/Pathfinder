@@ -1,12 +1,13 @@
 import React from 'react';
 import Container from './components/Container';
-import { TriggerProvider } from './triggerContext';
+import { AStarProvider } from './contexts/aStarContext';
+import { PathfinderProvider } from './contexts/pathfinderContext';
 
 export default function App() {
   return (<>
-    <TriggerProvider>
+    <PathfinderProvider><AStarProvider>
       <Container />
-    </TriggerProvider>
+    </AStarProvider></PathfinderProvider>
   </>);
 };
 
