@@ -1,0 +1,13 @@
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(40, 1.5rem);
+  grid-template-rows: repeat(20, 1.5rem);
+  row-gap: 2px;
+  column-gap: 2px;
+}
+
+.Grid .Node {
+  border: 1px solid black;
+  width: 100%;
+  height: 100%;
+}
