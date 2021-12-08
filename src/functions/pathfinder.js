@@ -1,6 +1,6 @@
 import delay from "./delay";
 
-export default async function pathfinder(grid, rows, columns, startNode, endNode) {
+export default async function pathfinder(grid, rows, columns, startNode, endNode, walls) {
   if (startNode.row === undefined) {
     alert("Set Start Node");
     return;
@@ -36,10 +36,11 @@ export default async function pathfinder(grid, rows, columns, startNode, endNode
 
   while (queue.length > 0) {
     const current = queue.shift();
-    if (current.toString() == target.toString()) return minDistances;
+    if (current.toString() === target.toString()) return minDistances;
+    if (walls.has(current.toString())) continue;
     if (!visited.has(current.toString())) {
       document.getElementById(`${current[0]}-${current[1]}`).style.backgroundColor = "blue";
-      if (current.toString() == start.toString())
+      if (current.toString() === start.toString())
         document.getElementById(`${current[0]}-${current[1]}`).style.backgroundColor = "green";
       const currentDistance = minDistances[current].distance;
       visited.add(current.toString());

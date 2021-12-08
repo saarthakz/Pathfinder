@@ -5,6 +5,8 @@ export default function Node({
   column,
   startKey,
   endKey,
+  wallFlag,
+  setWalls,
   startNode,
   setStartNode,
   endNode,
@@ -27,6 +29,12 @@ export default function Node({
         if (existingEnd) existingEnd.style.backgroundColor = "white"
         setEndNode({ row, column });
         document.getElementById(`${row}-${column}`).style.backgroundColor = "red";
+      };
+    }}
+    onMouseMove={() => {
+      if (wallFlag) {
+        document.getElementById(`${row}-${column}`).style.backgroundColor = 'grey';
+        setWalls((walls) => new Set(walls.add([row, column].toString())))
       };
     }}
     >

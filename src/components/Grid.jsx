@@ -12,7 +12,9 @@ export default function Grid() {
   const grid = new Array();
   const [startKey, setStartKey] = useState(false);
   const [endKey, setEndKey] = useState(false);
+  const [wallFlag, setWallFlag] = useState(false);
   const [trigger, setTrigger] = useContext(triggerContext);
+  const [walls, setWalls] = useState(new Set());
 
   const [startNode, setStartNode] = useState({
     row: undefined,
@@ -32,6 +34,8 @@ export default function Grid() {
         key={`${i}-${j}`} 
         startKey={startKey}
         endKey={endKey}
+        wallFlag={wallFlag}
+        setWalls={setWalls}
         startNode={startNode}
         setStartNode={setStartNode}
         endNode={endNode}
@@ -48,7 +52,7 @@ export default function Grid() {
 
       if (evt.key === "e") {
         setEndKey(true)
-      }
+      };
     });
 
     document.addEventListener("keyup", (evt) => {
@@ -60,12 +64,21 @@ export default function Grid() {
         setEndKey(false)
       };
     });
+
+    document.addEventListener("mousedown", () => {
+      setWallFlag(true);
+    });
+
+    document.addEventListener("mouseup", () => {
+      setWallFlag(false);
+    });
   })
 
   useEffect(() => {
     (async () => {
       if (trigger) {
-        const minDistances = await pathfinder(grid, rows, columns, startNode, endNode);
+        console.log(walls);
+        const minDistances = await pathfinder(grid, rows, columns, startNode, endNode, walls);
         await tracePath(minDistances, startNode, endNode);
       };
     })()
